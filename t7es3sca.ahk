@@ -219,7 +219,7 @@ IniRead, muteSound, %iniFile%, MUTE_SOUND, Mute, 0
 
 ; ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 title := "T7ES3 Screen Capture Advanced - " . Chr(169) . " " . A_YYYY . " - Philip"
-Gui, Show, w780 h310, %title%
+Gui, Show, w780 h410, %title%
 Gui, +LastFound +AlwaysOnTop
 Gui, Font, s10 q5, Segoe UI
 Gui, Margin, 15, 15
@@ -240,7 +240,7 @@ Gui, Add, Button,                       x670 y25 w100 h50,
 Gui, Add, Text,                             x10 y85, Process Priority:
 Gui, Add, DropDownList, vPriorityChoice     x10 y110 w100 r6, Idle|Below Normal|Normal|Above Normal|High|Realtime
 LoadSettings()
-Gui, Add, Text,                             x12 y5, Run this program from iside the Win64 folder. Use the escape button for a sound test or to quit T7ES3.
+Gui, Add, Text, x12 y5, Run this program from inside the Win64 folder. Use the escape button for a sound test or to quit T7ES3.
 Gui, Add, Button, gSetPriority              x10 y145 w100 h50, SET PROCESS PRIORITY
 Gui, Add, Button,                           x120 y145 w100 h50,
 Gui, Add, Button,                           x230 y145 w100 h50,
@@ -267,6 +267,8 @@ Gui, Add, Button, gAudioCapture         x340 y205 w100 h50, RECORD  AUDIO
 Gui, Add, Button, gVideoCapture         x450 y205 w100 h50, CAPTURE VIDEO
 Gui, Add, Button, gStopCapture          x560 y205 w100 h50, STOP VIDEO CAPTURE
 Gui, Add, Button, gStopCapture          x670 y205 w100 h50,
+
+Gui, Add, Text, x12 y210, screenshot = s | videocapture = c | audiorecording = a.
 
 ; ─── Status bar, 1 is used for TekkenGame status, use 2 and 3. ────────────────────────────────────────────────────────────
 Gui, Add, GroupBox,                   x0 y255 w780 h33
@@ -1094,6 +1096,11 @@ Extract7z(filePath, extractTo) {
 
     return true
 }
+
+; ─── Hotkey for screenshot ─────────────────────────
+s::
+    Gosub, Screenshot
+return
 
 
 ; ─── Take screenshot function. ────────────────────────────────────────────────────────────────────
