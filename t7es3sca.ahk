@@ -651,7 +651,6 @@ RunTekkenGame:
     Log("INFO", "Game Started.")
     setText("Good Morning! Game Started.")
     CustomTrayTip("Good Morning! Game Started.", 1)
-    UpdateStatusBar("Good Morning! Game Started.", 3)
 Return
 
 
@@ -1286,7 +1285,8 @@ if !ProcessExist("TekkenGame-Win64-Shipping.exe") {
 FormatTime, ts,, yyyy-MM-dd_HH-mm-ss
 FileCreateDir, %A_ScriptDir%\t7es3_captures
 outFile  := A_ScriptDir "\t7es3_captures\t7es3_video_" ts ".mp4"
-audioDev := "CABLE Output (VB-Audio Virtual Cable)"
+;audioDev := "CABLE Output (VB-Audio Virtual Cable)"
+audioDev := "Voicemeeter Out B1 (VB-Audio Voicemeeter VAIO)"
 
 if (fps = "") {
     CustomTrayTip("Missing Framerate, defaulting to 30.")
@@ -1410,7 +1410,9 @@ IfMsgBox No
 FormatTime, ts,, yyyy-MM-dd_HH-mm-ss
 FileCreateDir, %A_ScriptDir%\t7es3_recordings
 outFile := A_ScriptDir "\t7es3_recordings\t7es3_audio_" ts ".wav"
-audioDevice := "CABLE Output (VB-Audio Virtual Cable)"
+;audioDevice := "CABLE Output (VB-Audio Virtual Cable)"
+audioDevice := "Voicemeeter Out B1 (VB-Audio Voicemeeter VAIO)"
+
 
 ffArgs := "-f dshow -i audio=""" audioDevice """ -acodec pcm_s16le -ar 48000 -ac 2 """ outFile """"
 
@@ -1449,20 +1451,23 @@ if !FileExist(nircmd) {
     return
 }
 
-    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
-    Sleep, 200
-    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
-    Sleep, 200
+
+RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Input" 1 /nosplash,, Hide
+Sleep, 200
+RunWait, "%nircmd%" setdefaultsounddevice "Voicemeeter Out B3" 1 /nosplash,, Hide
+Sleep, 200
+
 
 ;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Input" 1 /nosplash,, Hide
 ;    Sleep, 200
 ;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Output" 1 /nosplash,, Hide
 ;    Sleep, 200
 
-    DllCall("winmm.dll\waveOutMessage", "UInt", -1, "UInt", 0x3CD, "UPtr", 0, "UPtr", 0)
+; Refresh audio system
+DllCall("winmm.dll\waveOutMessage", "UInt", -1, "UInt", 0x3CD, "UPtr", 0, "UPtr", 0)
 
-    CustomTrayTip("Recording devices set. Launch T7ES3 and start recording.", 1)
-    Log("INFO", "Audio devices switched: Output = VB-Audio VoiceMeeter VAIO, Input = VB-Audio VoiceMeeter VAIO")
+CustomTrayTip("Recording devices set. Launch T7ES3 and start recording.", 1)
+Log("INFO", "Audio devices switched: Output = " . audioDevOut . ", Input = " . audioDevIn)
 return
 
 
@@ -1483,15 +1488,10 @@ if !FileExist(nircmd) {
     return
 }
 
-    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "Speakers" 1 /nosplash,, Hide
     Sleep, 200
-    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "Microphone" 1 /nosplash,, Hide
     Sleep, 200
-
-;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Input" 1 /nosplash,, Hide
-;    Sleep, 200
-;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Output" 1 /nosplash,, Hide
-;    Sleep, 200
 
     DllCall("winmm.dll\waveOutMessage", "UInt", -1, "UInt", 0x3CD, "UPtr", 0, "UPtr", 0)
 

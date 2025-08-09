@@ -2,9 +2,11 @@
 
 **Advanced screen capture tool for T7ES3.**
 
-Prerequisites:
+
+#### Prerequisites:
 - nircmd
 - vb-audio
+- voicemeeter
 
 
 ![t7es3s.png](images/t7es3s.png)
