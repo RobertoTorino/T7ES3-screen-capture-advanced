@@ -152,7 +152,7 @@ if not A_IsAdmin
     }
     catch
     {
-        SB_SetText("Error, This script needs to be run as Administrator.", 2)
+        setText("Error: This script needs to be run as Administrator.")
     }
     ExitApp
 }
@@ -163,7 +163,7 @@ monitorIndex := 1  ; Change this to 2 for your second monitor
 
 SysGet, MonitorCount, MonitorCount
 if (monitorIndex > MonitorCount) {
-    SB_SetText("Invalid monitor index:" .  monitorIndex, 2)
+    setText("Invalid monitor index:" .  monitorIndex)
     ExitApp
 }
 
@@ -219,7 +219,7 @@ IniRead, muteSound, %iniFile%, MUTE_SOUND, Mute, 0
 
 ; ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 title := "T7ES3 Screen Capture Advanced - " . Chr(169) . " " . A_YYYY . " - Philip"
-Gui, Show, w780 h432, %title%
+Gui, Show, w780 h470, %title%
 Gui, +LastFound +AlwaysOnTop
 Gui, Font, s10 q5, Segoe UI
 Gui, Margin, 15, 15
@@ -280,30 +280,30 @@ Gui, Add, Button, gViewConfig       x670 y265 w100 h50, VIEW  SETTINGS
 
 
 ; ─── text. ────────────────────────────────────────────────────────────
-Gui, Add, Text, x5 y323, Controls: Screenshot = control+S | Videocapture = control+C | Audiorecording = control+A
+Gui, Add, Text, x5 y325, Controls: Screenshot = control+S | Videocapture = control+C | Audiorecording = control+A
 
 
 ; ─── status bar 1 ────────────────────────────────────────────────────────────
-Gui, Add, GroupBox,                 x0 y333 w780 h33
-Gui, Add, Text, vVariableTextA      x5 y343 w765, [PATH]
+Gui, Add, GroupBox,                 x0 y345 w780 h33
+Gui, Add, Text, vVariableTextA      x5 y355 w765, [PATH]
 pathText := "PATH: " . (TekkenGamePath != "" ? TekkenGamePath : "NoData")
 GuiControl,, VariableTextA, %pathText%
 Log("DEBUG", "Updated VariableTextA with: " . pathText)
 
-; ─── status bar 2 ────────────────────────────────────────────────────────────
-Gui, Add, GroupBox,                 x0 y355 w780 h33
-Gui, Add, Text, vSetText            x5 y365 w770,
-GuiControl,, SetText, %filePath%
-Log("DEBUG", "Updated SetText with: " . filePath)
-
 
 ; ─── status bar 3. ────────────────────────────────────────────────────────────
-Gui, Add, GroupBox,                   x0 y377 w780 h33
-Gui, Add, Text, vCurrentPriority      x5 y387 w770,
+Gui, Add, GroupBox,                   x0 y380 w780 h33
+Gui, Add, Text, vCurrentPriority      x5 y390 w770,
+
+
+; ─── status bar 2 ────────────────────────────────────────────────────────────
+Gui, Add, GroupBox,                 x0 y415 w780 h33
+Gui, Add, Text, vSetText            x5 y425 w770,
+
 
 ; ─── Bottom statusbar, 1 is reserved for process priority status ──────────────────────────────────────────────
 Gui, Add, StatusBar, vStatusBar1 hWndhStatusBar
-SB_SetParts(345, 435)
+SB_SetParts(355, 445)
 UpdateStatusBar(msg, segment := 1) {
     SB_SetText(msg, segment)
 }
@@ -335,6 +335,10 @@ return
 ; ─── END GUI. ───────────────────────────────────────────────────────────────────
 
 
+setText(newText) {
+    GuiControl,, SetText, %newText%
+}
+
 ; ─── Toggle sound in app. ─────────────────────────────────────────────────────────────────────────────────────────────
 ToggleMute:
     muteSound := !muteSound
@@ -363,7 +367,7 @@ Return
 ; ─── Show GUI. ───────────────────────────────────────────────────────────────────
 ShowGui:
     Gui, Show
-    SB_SetText("Screen Capture Advanced.", 2)
+    setText("Screen Capture Advanced.")
 return
 
 CreateGui:
@@ -403,11 +407,11 @@ SetTekkenGamePath:
         TekkenGamePath := selectedPath
         SplitPath, TekkenGamePath, TekkenGameExe
 
-        SB_SetText("Path: " . selectedPath, 2)
+        setText("Path: " . selectedPath)
         Log("INFO", "Path saved: " . selectedPath)
     } else {
         CustomTrayTip("Path not selected or invalid.", 3)
-        SB_SetText("ERROR: No valid TekkenGame executable selected.", 2)
+        setText("ERROR: No valid TekkenGame executable selected.")
         Log("ERROR", "No valid TekkenGame executable selected.")
     }
 Return
@@ -419,7 +423,7 @@ GetTekkenGamePath() {
 
     if !FileExist(iniFile) {
         CustomTrayTip("Missing t7es3.ini.", 3)
-        SB_SetText("ERROR: Missing t7es3.ini when calling GetTekkenGamePath.", 2)
+        setText("ERROR: Missing t7es3.ini when calling GetTekkenGamePath.")
         Log("ERROR", "Missing t7es3.ini when calling GetTekkenGamePath()")
         return ""
     }
@@ -427,7 +431,7 @@ GetTekkenGamePath() {
     IniRead, path, %iniFile%, TEKKEN_GAME, Path
     if (ErrorLevel) {
         CustomTrayTip("Could not read [TekkenGame] path from t7es3.ini.", 3)
-        SB_SetText("ERROR: Could not read [TekkenGame] path from t7es3.ini.", 2)
+        setText("ERROR: Could not read [TekkenGame] path from t7es3.ini.")
         Log("ERROR", "Could not read [TekkenGame] path from t7es3.ini")
         return ""
     }
@@ -440,7 +444,7 @@ GetTekkenGamePath() {
         return path
 
     CustomTrayTip("Could not read [TekkenGame] path from: " . path, 3)
-    SB_SetText("ERROR: Invalid or non-existent path in t7es3.ini: " . path, 2)
+    setText("ERROR: Invalid or non-existent path in t7es3.ini: " . path)
     Log("ERROR", "Invalid or non-existent path in t7es3.ini: " . path)
     return ""
 }
@@ -456,18 +460,18 @@ TekkenGamePath := GetTekkenGamePath()
 Log("DEBUG", "Saved path to config: " . TekkenGamePath)
 
 if (TekkenGamePath = "") {
-    SB_SetText("Warning, Path not set or invalid. Please select it now.", 2)
+    setText("Warning, Path not set or invalid. Please select it now.")
     FileSelectFile, selectedPath,, , Select TekkenGame executable, Executable Files (*.exe)
     if (selectedPath != "" && FileExist(selectedPath)) {
         SaveTekkenGamePath(selectedPath)
         TekkenGamePath := selectedPath
-        SB_SetText("Info, Saved Path:" . TekkenGamePath, 2)
+        setText("Info, Saved Path:" . TekkenGamePath)
     } else {
-        SB_SetText("Error, No valid path selected. Exiting.", 2)
+        setText("Error, No valid path selected. Exiting.")
         ExitApp
     }
 } else {
-SB_SetText("Info, Using Path:" . TekkenGamePath, 2)
+setText("Info, Using Path:" . TekkenGamePath)
 }
 
 
@@ -478,7 +482,7 @@ TekkenGamePath:
     {
         TekkenGamePath := selectedPath
         IniWrite, %TekkenGamePath%, %iniFile%, TEKKEN_GAME, Path
-        SB_SetText("Saved: Path saved: " . selectedPath, 2)
+        setText("Saved: Path saved: " . selectedPath)
         Log("INFO", "Path saved: " . selectedPath)
     }
 Return
@@ -497,7 +501,7 @@ LoadSettings() {
         SplitPath, iniFile, iniFileName
 
         ; Status bar message with clean formatting
-        SB_SetText("Process Not Found. Priority [" defaultPriority "] Saved to " iniFileName ".", 2)
+        setText("Process Not Found. Priority [" defaultPriority "] Saved to " iniFileName ".")
         ; CustomTrayTip("Initial Priority Set to " defaultPriority, 1)
 
         ; Update GUI
@@ -520,11 +524,11 @@ SaveSettings() {
 
     ; Get current selection from GUI (important!)
     GuiControlGet, currentPriority,, PriorityChoice
-    Log("DEBUG", "Attempting to save priority: " currentPriority)
+    Log("DEBUG", "Attempting to save priority: "currentPriority)
 
     ; Save to INI
     ; IniWrite, %currentPriority%, %iniFile%, PRIORITY, Priority
-    Log("INFO", "TrayTip shown: Priority set to " currentPriority)
+    Log("INFO", "TrayTip shown: Priority set to "currentPriority)
 }
 
 
@@ -540,13 +544,13 @@ ExitTekkenGame:
     pid := ErrorLevel
     if (pid) {
         KillAllProcesses(pid)  ; Pass PID to function
-        ; CustomTrayTip("Killed all TekkenGame processes.", 2)
+        ; CustomTrayTip("Killed all TekkenGame processes.")
         Log("INFO", "Killed all TekkenGame processes (PID: " . pid . ")")
-        SB_SetText("Killed all TekkenGame processes.", 2)
+        setText("Killed all TekkenGame processes.")
     } else {
-        ; CustomTrayTip("No TekkenGame processes running.", 2)
+        ; CustomTrayTip("No TekkenGame processes running.")
         Log("INFO", "No TekkenGame processes running.")
-        SB_SetText("No TekkenGame processes running", 2)
+        setText("No TekkenGame processes running")
     }
 
     Gui, Show ; Show or hide GUI but keep script alive
@@ -595,29 +599,29 @@ RunTekkenGame:
     if (!FileExist(IniFile)) {
         SplitPath, IniFile, iniFileName
         CustomTrayTip("Missing " . IniFile . " Set TekkenGame Path first.", 3)
-        SB_SetText("Missing " . IniFile . " Set TekkenGame Path first.", 2)
+        setText("Missing " . IniFile . " Set TekkenGame Path first.")
         Return
     }
 
-    SB_SetText("Reading from: " . IniFile, 3)
+    setText("Reading from: " . IniFile)
 
     IniRead, TekkenGamePath, %IniFile%, TEKKEN_GAME, Path
     if (TekkenGamePath != "") {
         Global TekkenGameExe
         SplitPath, TekkenGamePath, TekkenGameExe
     }
-    SB_SetText("Path read: " . TekkenGamePath, 3)
+    setText("Path read: " . TekkenGamePath)
 
     if (ErrorLevel) {
         CustomTrayTip("Could not read path from " . IniFile, 3)
-        SB_SetText("Could not read the path from " . IniFile, 3)
+        setText("Could not read the path from " . IniFile)
         Log("ERROR", "Could not read the path from section [TekkenGame] in`n" . IniFile)
         Return
     }
 
     if !FileExist(TekkenGamePath) {
         CustomTrayTip("File not found: " . TekkenGamePath, 3)
-        SB_SetText("File not found: " . TekkenGamePath, 3)
+        setText("File not found: " . TekkenGamePath)
         Log("ERROR", "The file does not exist:`n" . TekkenGamePath)
     Return
     }
@@ -636,16 +640,16 @@ RunTekkenGame:
     Process, Exist, %TekkenGameExe%
     if (!ErrorLevel)
     {
-    SB_SetText("Error, Failed to launch TekkenGame:" . TekkenGamePath, 2)
+    setText("Error, Failed to launch TekkenGame:" . TekkenGamePath)
     Log("ERROR", "TekkenGame failed to launch.")
-    SB_SetText("ERROR: TekkenGame did not launch.", 2)
+    setText("ERROR: TekkenGame did not launch.")
     CustomTrayTip("ERROR: TekkenGame did not launch!", 3)
     return
     }
     if (!muteSound)
     SoundPlay, %A_Temp%\T7ES3_GOOD_MORNING.wav
     Log("INFO", "Game Started.")
-    SB_SetText("Good Morning! Game Started.", 2)
+    setText("Good Morning! Game Started.")
     CustomTrayTip("Good Morning! Game Started.", 1)
     UpdateStatusBar("Good Morning! Game Started.", 3)
 Return
@@ -742,7 +746,7 @@ UpdateCPUMem() {
         Global logInterval := logInterval   ; 5 seconds in milliseconds
 
     } catch e {
-        SB_SetText("Error fetching CPU/memory: " . e.Message, 2)
+        setText("Error fetching CPU/memory: " . e.Message)
     }
 }
 
@@ -827,7 +831,7 @@ Esc::
 
     Process, Exist, TekkenGame-Win64-Shipping.exe
     if (ErrorLevel) {
-        CustomTrayTip("ESC pressed. Killing T7ES3 processes.", 2)
+        CustomTrayTip("ESC pressed. Killing T7ES3 processes.")
         Log("WARN", "ESC pressed. Killing all T7ES3 processes.")
         KillAllProcessesEsc()
     } else {
@@ -870,7 +874,7 @@ return
 ResizeWindow:
     Global iniFile
     Gui, Submit, NoHide
-    SB_SetText("Current SizeChoice: " . SizeChoice, 1)
+    setText("Current SizeChoice: " . SizeChoice)
 
     ;-----------------------------------------------------------------
     ;  1. make sure T7ES3 is running, get HWND
@@ -1038,7 +1042,7 @@ Global logFile
         FileAppend, %logEntry%, %fallbackLog%
 
         ; User notifications
-        SB_SetText("LOG ERROR: Check fallback.log.", 2)
+        setText("LOG ERROR: Check fallback.log.")
     }
 
     inLog := false
@@ -1086,7 +1090,7 @@ RefreshTekkenGamePath() {
     TekkenGamePath := path
     Log("INFO", "Path refreshed: " . path)
     CustomTrayTip("Path refreshed: " . path, 1)
-    SB_SetText("PATH: " . path, 2)
+    setText("PATH: " . path)
 }
 
 
@@ -1134,7 +1138,7 @@ Screenshot:
     if !WinExist("ahk_exe TekkenGame-Win64-Shipping.exe") {
         ; CustomTrayTip("TekkenGame Window Not Found.",2)
         Log("ERROR", "TekkenGame Window Not Found.")
-        SB_SetText("TekkenGame Window Not Found.", 2)
+        setText("TekkenGame Window Not Found.")
         return
     }
 
@@ -1173,7 +1177,7 @@ Screenshot:
     if !(pToken := Gdip_Startup()) {
         ; CustomTrayTip("GDI+ init failed.",2)
         Log("ERROR", "GDI+ failed to initialise.")
-        SB_SetText("GDI+ init failed.", 2)
+        setText("GDI+ init failed.")
         return
     }
 
@@ -1182,7 +1186,7 @@ Screenshot:
     if !pBitmap {
         Log("ERROR", "Screen capture failed. hwnd=" . hwnd)
         ; CustomTrayTip("Screen capture failed (see log).",2)
-        SB_SetText("Screen capture failed.", 2)
+        setText("Screen capture failed.")
         Gdip_Shutdown(pToken)
         return
     }
@@ -1207,10 +1211,10 @@ Screenshot:
     if (result) {                     ; non-zero = error
         Log("ERROR", "Save failed. Code=" . result . " Path=" . filePath)
         ; CustomTrayTip("Failed to save screenshot! Code " . result,2)
-        SB_SetText("Screenshot save failed.", 2)
+        setText("Screenshot save failed.")
     } else {
         Log("DEBUG", "Screenshot taken: " . filePath)
-        setText("Screenshot saved: " . filePath, 2)
+        setText("Screenshot saved: " . filePath)
         Run, %ScreenshotDir%
     }
     return
@@ -1285,7 +1289,7 @@ outFile  := A_ScriptDir "\t7es3_captures\t7es3_video_" ts ".mp4"
 audioDev := "CABLE Output (VB-Audio Virtual Cable)"
 
 if (fps = "") {
-    CustomTrayTip("Missing Framerate, defaulting to 30.", 2)
+    CustomTrayTip("Missing Framerate, defaulting to 30.")
     fps := 30
 }
 
@@ -1445,15 +1449,20 @@ if !FileExist(nircmd) {
     return
 }
 
-    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Input" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
     Sleep, 200
-    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Output" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
     Sleep, 200
+
+;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Input" 1 /nosplash,, Hide
+;    Sleep, 200
+;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Output" 1 /nosplash,, Hide
+;    Sleep, 200
 
     DllCall("winmm.dll\waveOutMessage", "UInt", -1, "UInt", 0x3CD, "UPtr", 0, "UPtr", 0)
 
-    CustomTrayTip("Recording devices set. Launch T7ES3 and hit Record.", 1)
-    Log("INFO", "Audio devices switched: Output = CABLE Input, Input = CABLE Output")
+    CustomTrayTip("Recording devices set. Launch T7ES3 and start recording.", 1)
+    Log("INFO", "Audio devices switched: Output = VB-Audio VoiceMeeter VAIO, Input = VB-Audio VoiceMeeter VAIO")
 return
 
 
@@ -1474,10 +1483,15 @@ if !FileExist(nircmd) {
     return
 }
 
-    RunWait, "%nircmd%" setdefaultsounddevice "Speakers" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
     Sleep, 200
-    RunWait, "%nircmd%" setdefaultsounddevice "Microphone" 1 /nosplash,, Hide
+    RunWait, "%nircmd%" setdefaultsounddevice "VoiceMeeter Output (VB-Audio VoiceMeeter VAIO)" 1 /nosplash,, Hide
     Sleep, 200
+
+;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Input" 1 /nosplash,, Hide
+;    Sleep, 200
+;    RunWait, "%nircmd%" setdefaultsounddevice "CABLE Output" 1 /nosplash,, Hide
+;    Sleep, 200
 
     DllCall("winmm.dll\waveOutMessage", "UInt", -1, "UInt", 0x3CD, "UPtr", 0, "UPtr", 0)
 
@@ -1491,7 +1505,7 @@ SetPriority:
     Gui, Submit, NoHide
     if PriorityChoice =  ;empty or not selected
     {
-        CustomTrayTip("Please select a priority before setting.", 2)
+        CustomTrayTip("Please select a priority before setting.")
         return
     }
 
