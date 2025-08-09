@@ -219,7 +219,7 @@ IniRead, muteSound, %iniFile%, MUTE_SOUND, Mute, 0
 
 ; ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 title := "T7ES3 Screen Capture Advanced - " . Chr(169) . " " . A_YYYY . " - Philip"
-Gui, Show, w780 h410, %title%
+Gui, Show, w780 h432, %title%
 Gui, +LastFound +AlwaysOnTop
 Gui, Font, s10 q5, Segoe UI
 Gui, Margin, 15, 15
@@ -290,11 +290,16 @@ pathText := "PATH: " . (TekkenGamePath != "" ? TekkenGamePath : "NoData")
 GuiControl,, VariableTextA, %pathText%
 Log("DEBUG", "Updated VariableTextA with: " . pathText)
 
+; ─── status bar 2 ────────────────────────────────────────────────────────────
+Gui, Add, GroupBox,                 x0 y355 w780 h33
+Gui, Add, Text, vSetText            x5 y365 w770,
+GuiControl,, SetText, %filePath%
+Log("DEBUG", "Updated SetText with: " . filePath)
 
-; ─── status bar 2. ────────────────────────────────────────────────────────────
-Gui, Add, GroupBox,                   x0 y355 w780 h33
-Gui, Add, Text, vCurrentPriority      x5 y365 w770,
 
+; ─── status bar 3. ────────────────────────────────────────────────────────────
+Gui, Add, GroupBox,                   x0 y377 w780 h33
+Gui, Add, Text, vCurrentPriority      x5 y387 w770,
 
 ; ─── Bottom statusbar, 1 is reserved for process priority status ──────────────────────────────────────────────
 Gui, Add, StatusBar, vStatusBar1 hWndhStatusBar
@@ -1205,7 +1210,7 @@ Screenshot:
         SB_SetText("Screenshot save failed.", 2)
     } else {
         Log("DEBUG", "Screenshot taken: " . filePath)
-        SB_SetText("Screenshot saved: " . filePath, 2)
+        setText("Screenshot saved: " . filePath, 2)
         Run, %ScreenshotDir%
     }
     return
