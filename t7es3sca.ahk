@@ -103,7 +103,7 @@ if (priorityValue = "")
 
 
 ; ─── read TekkenGame path and extract executable name if found. ────────────────────────────────────────────────────────────
-IniRead, TekkenGamePath, %iniFile%, T7ES3, Path
+IniRead, TekkenGamePath, %iniFile%, TEKKEN_GAME, Path
 if (t7es3Path != "") {
     Global TekkenGameExe
     SplitPath, TekkenGamePath, TekkenGameExe
@@ -115,14 +115,14 @@ IniRead, lastGameExe, %iniFile%, LAST_PLAYED, GameExe, UnknownID
 
 
 ; ─── save screen size. ────────────────────────────────────────────────────────────────────
-IniRead, SavedSize, %iniFile%, SIZE_SETTINGS, SizeChoice, FullScreen
+IniRead, SavedSize, %iniFile%, SIZE_SETTINGS, SizeChoice, FULLSCREEN
 SizeChoice := SavedSize
 selectedControl := sizeToControl[SavedSize]
 for key, val in sizeToControl {
     label := (val = selectedControl) ? "[" . key . "]" : key
     GuiControl,, %val%, %label%
 }
-DefaultSize := "FullScreen"
+DefaultSize := "FULLSCREEN"
 
 
 ; ─── load window settings from ini. ────────────────────────────────────────────────────────────────────
@@ -268,21 +268,35 @@ Gui, Add, Button, gVideoCapture         x450 y205 w100 h50, CAPTURE VIDEO
 Gui, Add, Button, gStopCapture          x560 y205 w100 h50, STOP VIDEO CAPTURE
 Gui, Add, Button, gStopCapture          x670 y205 w100 h50,
 
-Gui, Add, Text, x12 y210, screenshot = s | videocapture = c | audiorecording = a.
 
-; ─── Status bar, 1 is used for TekkenGame status, use 2 and 3. ────────────────────────────────────────────────────────────
-Gui, Add, GroupBox,                   x0 y255 w780 h33
-Gui, Add, Text, vCurrentPriority      x5 y266 w125,
-Gui, Add, Text, vVariableText2      x140 y266 w640, [LAST_PLAYED]
-
-; ─── update gui controls for last game in the custom statusbar. ──────────────────────────────────────────────
-idText := "LAST_PLAYED: " . (lastGameExe != "" ? lastGameExe : "NoData")
-GuiControl,, VariableText2, %idText%
-
-Log("DEBUG", "Updated VariableText2 with: " . idText)
+; ─── other. ────────────────────────────────────────────────────────────
+Gui, Add, Button,                   x10 y265 w100 h50,
+Gui, Add, Button,                   x120 y265 w100 h50,
+Gui, Add, Button,                   x230 y265 w100 h50,
+Gui, Add, Button, gViewLog          x340 y265 w100 h50, VIEW LOG
+Gui, Add, Button, gClearLog         x450 y265 w100 h50, CLEAR LOG
+Gui, Add, Button, gOpenScriptDir    x560 y265 w100 h50, BROWSE
+Gui, Add, Button, gViewConfig       x670 y265 w100 h50, VIEW  SETTINGS
 
 
-; ─── Bottom statusbar, 1 is reserved for process priority status, use 2. ──────────────────────────────────────────────
+; ─── text. ────────────────────────────────────────────────────────────
+Gui, Add, Text, x5 y323, Controls: Screenshot = control+S | Videocapture = control+C | Audiorecording = control+A
+
+
+; ─── status bar 1 ────────────────────────────────────────────────────────────
+Gui, Add, GroupBox,                 x0 y333 w780 h33
+Gui, Add, Text, vVariableTextA      x5 y343 w765, [PATH]
+pathText := "PATH: " . (TekkenGamePath != "" ? TekkenGamePath : "NoData")
+GuiControl,, VariableTextA, %pathText%
+Log("DEBUG", "Updated VariableTextA with: " . pathText)
+
+
+; ─── status bar 2. ────────────────────────────────────────────────────────────
+Gui, Add, GroupBox,                   x0 y355 w780 h33
+Gui, Add, Text, vCurrentPriority      x5 y365 w770,
+
+
+; ─── Bottom statusbar, 1 is reserved for process priority status ──────────────────────────────────────────────
 Gui, Add, StatusBar, vStatusBar1 hWndhStatusBar
 SB_SetParts(345, 435)
 UpdateStatusBar(msg, segment := 1) {
@@ -309,17 +323,11 @@ Menu, Tray, Add, Show GUI, ShowGui                      ;Add a custom "Show GUI"
 Menu, Tray, Add                                         ;Add a separator line
 Menu, Tray, Add, About T7ES3..., ShowAboutDialog
 Menu, Tray, Default, Show GUI                           ;Make "Show GUI" the default double-click action
-Menu, Tray, Tip, T7ES3 Screen Capture Tool     ;Tooltip when hovering
+Menu, Tray, Tip, T7ES3 Screen Capture Tool              ;Tooltip when hovering
 
 ; ─── this return ends all updates to the gui. ───────────────────────────────────
 return
 ; ─── END GUI. ───────────────────────────────────────────────────────────────────
-
-
-
-OpenScriptDir:
-Run, %A_ScriptDir%
-return
 
 
 ; ─── Toggle sound in app. ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -341,7 +349,7 @@ t7es3Path:
     if (selectedPath != "")
     {
         t7es3Path := selectedPath
-        IniWrite, %t7es3Path%, %iniFile%, T7ES3, Path
+        IniWrite, %t7es3Path%, %iniFile%, TEKKEN_GAME, Path
         Log("INFO", "Path saved: " . selectedPath)
     }
 Return
@@ -374,7 +382,6 @@ return
 RefreshPath:
     RefreshTekkenGamePath()
     CustomTrayTip("Path refreshed: " TekkenGamePath, 1)
-    SB_SetText("PATH: " . TekkenGamePath, 2)
     Log("DEBUG", "Path refreshed: " . TekkenGamePath)
 return
 
@@ -412,7 +419,7 @@ GetTekkenGamePath() {
         return ""
     }
 
-    IniRead, path, %iniFile%, TekkenGame, Path
+    IniRead, path, %iniFile%, TEKKEN_GAME, Path
     if (ErrorLevel) {
         CustomTrayTip("Could not read [TekkenGame] path from t7es3.ini.", 3)
         SB_SetText("ERROR: Could not read [TekkenGame] path from t7es3.ini.", 2)
@@ -435,7 +442,7 @@ GetTekkenGamePath() {
 
 SaveTekkenGamePath(path) {
     static iniFile := A_ScriptDir . "\tools\t7es3.ini"
-    IniWrite, %path%, %iniFile%, TekkenGame, Path
+    IniWrite, %path%, %iniFile%, TEKKEN_GAME, Path
     Log("DEBUG", "Saved path to config: " . TekkenGamePath)
     CustomTrayTip("Saved Path to config: " . TekkenGamePath, 1)
 }
@@ -465,7 +472,7 @@ TekkenGamePath:
     if (selectedPath != "")
     {
         TekkenGamePath := selectedPath
-        IniWrite, %TekkenGamePath%, %iniFile%, TekkenGame, Path
+        IniWrite, %TekkenGamePath%, %iniFile%, TEKKEN_GAME, Path
         SB_SetText("Saved: Path saved: " . selectedPath, 2)
         Log("INFO", "Path saved: " . selectedPath)
     }
@@ -589,7 +596,7 @@ RunTekkenGame:
 
     SB_SetText("Reading from: " . IniFile, 3)
 
-    IniRead, TekkenGamePath, %IniFile%, TekkenGame, Path
+    IniRead, TekkenGamePath, %IniFile%, TEKKEN_GAME, Path
     if (TekkenGamePath != "") {
         Global TekkenGameExe
         SplitPath, TekkenGamePath, TekkenGameExe
@@ -639,11 +646,19 @@ RunTekkenGame:
 Return
 
 
+; ─── View logs function. ────────────────────────────────────────────────────────────────────
+ViewLog:
+Global logFile
+    Run, % "notepad.exe """ logFile """"
+    Log("DEBUG", "Opened " . logFile . " in Notepad.")
+return
+
+
 ; ─── Clear logs function. ────────────────────────────────────────────────────────────────────
 ClearLog:
 Global logFile
-FileDelete, %logFile%
-CustomTrayTip(logFile . " cleared successfully", 1)
+    FileDelete, %logFile%
+    CustomTrayTip(logFile . " cleared successfully", 1)
 return
 
 
@@ -654,6 +669,12 @@ ViewConfig:
     SplitPath, iniFile, iniFileName
     Log("DEBUG", "Opened: " iniFile)
     UpdateStatusBar(iniFile . " opened.",2)
+return
+
+
+; ─── browse script dir. ────────────────────────────────────────────────────────────────────
+OpenScriptDir:
+    Run, %A_ScriptDir%
 return
 
 
@@ -726,7 +747,7 @@ Refresht7es3Path() {
     Global t7es3Path
     Global iniFile
 
-    IniRead, path, %iniFile%, T7ES3, Path
+    IniRead, path, %iniFile%, TEKKEN_GAME, Path
     path := Trim(path, "`" " ")
 
     if (path = "" || !FileExist(path) || SubStr(path, -3) != ".exe") {
@@ -739,7 +760,7 @@ Refresht7es3Path() {
         }
 
         userPath := Trim(userPath, "`" " ")
-        IniWrite, %userPath%, %iniFile%, T7ES3, Path
+        IniWrite, %userPath%, %iniFile%, TEKKEN_GAME, Path
         t7es3Path := userPath
         Log("INFO", "User manually selected Path: " . userPath)
         MsgBox, 64, Path Updated, Path successfully updated to:`n%userPath%
@@ -824,8 +845,8 @@ SetSizeChoice:
 clicked := A_GuiControl
 Global SizeChoice, iniFile
 
-; MAP CONTROL NAMES TO SIZE VALUES
-sizes := { "SizeFull": "FullScreen"}
+; map control names to size values
+sizes := { "SizeFull": "FULLSCREEN", "SizeWindowed":  "WINDOWED", "SizeHidden": "HIDDEN" }
 
 ; save selected size
 SizeChoice := sizes[clicked]
@@ -893,7 +914,7 @@ ResizeWindow:
     ; 3. act on the user’s SizeChoice
     ;-----------------------------------------------------------------
     ; native maximised / true fullscreen
-    if (SizeChoice = "FullScreen") {
+    if (SizeChoice = "FULLSCREEN") {
         WinRestore, %WinID%
         WinMaximize, %WinID%
     }
@@ -970,9 +991,7 @@ Global SizeChoice, DefaultSize, iniFile
 SizeChoice := DefaultSize
 
 ; Update size buttons
-sizeToControl := { "FullScreen":    "SizeFull"
-                 , "Windowed":      "SizeWindowed"
-                 , "Hidden":        "SizeHidden" }
+sizeToControl := { "FULLSCREEN": "SizeFull", "WINDOWED": "SizeWindowed", "HIDDEN": "SizeHidden" }
 
 for key, val in sizeToControl {
     label := (key = SizeChoice) ? "[" . key . "]" : key
@@ -1039,7 +1058,7 @@ RefreshTekkenGamePath() {
     Global TekkenGamePath
     Global iniFile
 
-    IniRead, path, %iniFile%, TekkenGame, Path
+    IniRead, path, %iniFile%, TEKKEN_GAME, Path
     path := Trim(path, "`" " ")
 
     if (path = "" || !FileExist(path) || SubStr(path, -3) != ".exe") {
@@ -1052,7 +1071,7 @@ RefreshTekkenGamePath() {
         }
 
         userPath := Trim(userPath, "`" " ")
-        IniWrite, %userPath%, %iniFile%, TekkenGame, Path
+        IniWrite, %userPath%, %iniFile%, TEKKEN_GAME, Path
         TekkenGamePath := userPath
         Log("INFO", "User manually selected Path: " . userPath)
         MsgBox, 64, Path Updated, Path successfully updated to:`n%userPath%
@@ -1098,7 +1117,7 @@ Extract7z(filePath, extractTo) {
 }
 
 ; ─── Hotkey for screenshot ─────────────────────────
-s::
+^s::
     Gosub, Screenshot
 return
 
@@ -1194,7 +1213,7 @@ Screenshot:
 
 
 ; ─── Hotkey to toggle recording ─────────────────────────
-c::
+^c::
     Gosub, VideoCapture
 return
 
@@ -1328,7 +1347,7 @@ return
 
 
 ; ─── Hotkey to toggle audio capture ─────────────────────
-a::
+^a::
     Gosub, AudioCapture
 return
 
